@@ -18,6 +18,16 @@ function handleDraw() {
       console.log(data)
       newCards = data.cards
       console.log('Drew cards:', newCards)
+
+      // Display the card images
+      const cardsDiv = document.getElementById('cards')
+      let cardsHTML = ''
+
+      newCards.forEach(card => {
+        cardsHTML += `<img src="${card.image}" alt="${card.value} of ${card.suit}"
+        class="card">`
+      })
+      cardsDiv.innerHTML = cardsHTML
     })
 }
 
