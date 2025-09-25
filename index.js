@@ -8,6 +8,7 @@ function handleClick() {
     .then(data => {
       console.log(data)
       deckId = data.deck_id;
+      updateRemainingCards(data.remaining)
     })
 }
 
@@ -72,7 +73,16 @@ function handleDraw() {
       const winnerText = determineWinner(data.cards[0], data.cards[1])
       displayWinner(winnerText)
 
+      // Update remaining cards count
+      updateRemainingCards(data.remaining)
     })
+}
+
+function updateRemainingCards(remaining) {
+  const remainingElement = document.getElementById('remaining-cards')
+  if (remainingElement) {
+    remainingElement.textContent = `Cards remaining: ${remaining}`
+  }
 }
 
 document.getElementById('new-deck').addEventListener('click', handleClick)
