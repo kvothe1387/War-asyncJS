@@ -61,6 +61,8 @@ div.top>p {
 
 button:disabled {
   cursor: not-allowed;
+  background-color: #666;
+  opacity: .5;
 }
 
 h2 {

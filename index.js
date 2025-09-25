@@ -9,6 +9,14 @@ function handleClick() {
       console.log(data)
       deckId = data.deck_id;
       updateRemainingCards(data.remaining)
+
+      // Ensure draw button is enabled for new deck
+      const drawBtn = document.getElementById("draw-cards")
+      if (drawBtn) {
+        drawBtn.disabled = false
+        drawBtn.classList.remove("disabled")
+        drawBtn.textContent = "Draw"
+      }
     })
 }
 
@@ -80,8 +88,29 @@ function handleDraw() {
 
 function updateRemainingCards(remaining) {
   const remainingElement = document.getElementById('remaining-cards')
+  const drawBtn = document.getElementById('draw-cards')
+
   if (remainingElement) {
     remainingElement.textContent = `Cards remaining: ${remaining}`
+  }
+
+  // Handle button state when cards run out
+  if (drawBtn) {
+    if (remaining < 2) {
+      // Disable functionality
+      drawBtn.disabled = true
+      // Add disabled styling
+      drawBtn.classList.add('disabled')
+      // Change button text
+      drawBtn.textContent = "No Cards Left"
+    } else {
+      // Enalbe functionality
+      drawBtn.disabled = false
+      // Remove disabled styling
+      drawBtn.classList.remove('disabled')
+      // Reset button text
+      drawBtn.textContent = "Draw"
+    }
   }
 }
 
