@@ -1,5 +1,7 @@
 let deckId = null;
 let newCards = [];
+let computerScore = 0
+let playerScore = 0
 const header = document.getElementById("header");
 
 function handleClick() {
@@ -9,6 +11,7 @@ function handleClick() {
       console.log(data)
       deckId = data.deck_id;
       updateRemainingCards(data.remaining)
+      resetScores() // Reset score for new game
 
       // Ensure draw button is enabled for new deck
       const drawBtn = document.getElementById("draw-cards")
@@ -32,10 +35,12 @@ function determineWinner(card1, card2) {
 
   // Compare the scores and determine the winner
   if (card1Score > card2Score) {
-    console.log(`Card 1 wins (${card1.value} beats ${card2.value})`)
+    computerScore++ // Add point to computer
+    updateScoreDisplay() // Update display
     return 'Computer wins!' // Card 1 = Computer
   } else if (card2Score > card1Score) {
-    console.log(`Card 2 wins! (${card2.value} beats ${card1.value})`)
+    playerScore++ // Add point to player
+    updateScoreDisplay() // Update display
     return "You win!" // Card 2 = You
   } else {
     console.log("It's a tie!")
@@ -114,6 +119,28 @@ function updateRemainingCards(remaining) {
   }
 }
 
+function updateScoreDisplay() {
+  const computerScoreElement = document.getElementById('computer-score')
+  const playerScoreElement = document.getElementById('player-score')
+
+  if (computerScoreElement) {
+    computerScoreElement.textContent = `Computer Score: ${computerScore}`
+  }
+
+  if (playerScoreElement) {
+    playerScoreElement.textContent = `Your Score: ${playerScore}`
+  }
+}
+
+function resetScores() {
+  computerScore = 0
+  playerScore = 0
+  updateScoreDisplay()
+}
+
 document.getElementById('new-deck').addEventListener('click', handleClick)
 document.getElementById('draw-cards').addEventListener('click', handleDraw)
+document.addEventListener('DOMContentLoaded', function () {
+  updateScoreDisplay();
+});
 
