@@ -4,29 +4,33 @@ let computerScore = 0
 let playerScore = 0
 const header = document.getElementById("header");
 
-function handleClick() {
-  fetch('https://apis.scrimba.com/deckofcards/api/deck/new/shuffle/')
-    .then(res => res.json())
-    .then(data => {
-      console.log(data)
-      deckId = data.deck_id;
-      updateRemainingCards(data.remaining)
-      resetScores() // Reset score for new game
+async function handleClick() {
+  try {
+    const res = await fetch('https://apis.scrimba.com/deckofcards/api/deck/new/shuffle/');
+    const data = await res.json();
 
-      // Ensure draw button is enabled for new deck
-      const drawBtn = document.getElementById("draw-cards")
-      if (drawBtn) {
-        drawBtn.disabled = false
-        drawBtn.classList.remove("disabled")
-        drawBtn.textContent = "Draw"
-      }
-    })
+    console.log(data);
+    deckId = data.deck_id;
+    updateRemainingCards(data.remaining);
+    resetScores();
+    header.textContent = "Game of War";
+
+    const drawButton = document.getElementById("draw-cards");
+    if (drawButton) {
+      drawButton.disabled = false;
+      drawButton.classList.remove("disabled");
+      drawButton.textContent = "Draw";
+    }
+  } catch (error) {
+    console.error('Error creating new deck:', error);
+    header.textContent = "Error creating deck. Please try again.";
+  }
 }
 
 function determineWinner(card1, card2) {
   const cardValues = {
     "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
-    "JACK": 11, "QUEEN": 12, "KING": 13, "ACE": 14  // Updated to match API format
+    "JACK": 11, "QUEEN": 12, "KING": 13, "ACE": 14
   }
 
   // Get the numeric values for both cards
@@ -63,32 +67,50 @@ function displayWinner(result) {
   resultElement.textContent = result
 }
 
-function handleDraw() {
-  fetch(`https://apis.scrimba.com/deckofcards/api/deck/${deckId}/draw/?count=2`)
-    .then(res => res.json())
-    .then(data => {
-      console.log(data)
-      newCards = data.cards
-      console.log('Drew cards:', newCards)
+function checkForGameEnd(remaining) {
+  if (remaining < 2) {
+    const header = document.getElementById("header");
 
-      // Get all card slot elements
-      const cardSlots = document.querySelectorAll('.card-slot')
+    if (computerScore > playerScore) {
+      header.textContent = `Computer wins the game! Final score: ${computerScore} - ${playerScore}`;
+    } else if (playerScore > computerScore) {
+      header.textContent = `You win the game! Final score: ${playerScore} - ${computerScore}`;
+    } else {
+      header.textContent = `It's a tie game! Final score: ${playerScore} - ${computerScore}`;
+    }
+  }
+}
 
-      // Place cards in slots
-      if (newCards[0] && cardSlots[0]) {
-        cardSlots[0].innerHTML = `<img src="${newCards[0].image}" alt="${newCards[0].value} of ${newCards[0].suit}" class="card">`
-      }
-      if (newCards[1] && cardSlots[1]) {
-        cardSlots[1].innerHTML = `<img src="${newCards[1].image}" alt="${newCards[1].value} of ${newCards[1].suit}" class="card">`
-      }
+async function handleDraw() {
+  try {
+    const res = await fetch(`https://apis.scrimba.com/deckofcards/api/deck/${deckId}/draw/?count=2`);
+    const data = await res.json();
 
-      // Determine & display the winner
-      const winnerText = determineWinner(data.cards[0], data.cards[1])
-      displayWinner(winnerText)
+    console.log(data);
+    newCards = data.cards;
+    console.log('Drew cards:', newCards);
 
-      // Update remaining cards count
-      updateRemainingCards(data.remaining)
-    })
+    const cardSlots = document.querySelectorAll('.card-slot');
+
+    if (newCards[0] && cardSlots[0]) {
+      cardSlots[0].innerHTML = `<img src="${newCards[0].image}" alt="${newCards[0].value} of ${newCards[0].suit}" class="card">`;
+    }
+    if (newCards[1] && cardSlots[1]) {
+      cardSlots[1].innerHTML = `<img src="${newCards[1].image}" alt="${newCards[1].value} of ${newCards[1].suit}" class="card">`;
+    }
+
+    updateRemainingCards(data.remaining);
+
+    if (data.remaining >= 2) {
+      const winnerText = determineWinner(data.cards[0], data.cards[1]);
+      header.textContent = winnerText;
+    }
+
+    checkForGameEnd(data.remaining);
+  } catch (error) {
+    console.error('Error drawing cards:', error);
+    header.textContent = "Error drawing cards. Please try again.";
+  }
 }
 
 function updateRemainingCards(remaining) {
